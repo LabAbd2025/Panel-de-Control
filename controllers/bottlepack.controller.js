@@ -36,20 +36,40 @@ exports.crearRegistro = async (req, res) => {
   }
 }
 
-// controllers/bottlepack.controller.js
 exports.obtenerRegistros = async (req, res) => {
   const modelo = req.params.modelo
+  const page = Number(req.query.page) || 1
+  const pageSize = Number(req.query.pageSize) || 10
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
   try {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from(`registros_${modelo}`)
-      .select('*')
+      .select('id, fecha_inicio, producto, lote, eficiencia, horas_trabajadas, fecha_creacion', { count: 'exact' })
       .order('fecha_creacion', { ascending: false })
+      .range(from, to)
 
     if (error) throw error
-    res.status(200).json(data)
+    res.status(200).json({ data, total: count })
   } catch (error) {
     console.error('Error al obtener registros:', error.message)
     res.status(500).json({ error: 'Error al obtener registros' })
   }
 }
-  
+
+// Y para obtener detalle de UN registro:
+exports.obtenerDetalleRegistro = async (req, res) => {
+  const { modelo, id } = req.params
+  try {
+    const { data, error } = await supabase
+      .from(`registros_${modelo}`)
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+    res.status(200).json(data)
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener detalle' })
+  }
+}
