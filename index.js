@@ -9,6 +9,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api/registros', require('./routes/bottlepack.routes'))
 app.use('/api/division', require('./routes/division.routes'))
+app.use('/api/ppv', require('./routes/ppv.routes'))
+app.use('/api/pgv', require('./routes/pgv.routes'))
 
 
 const PORT = process.env.PORT || 3000
